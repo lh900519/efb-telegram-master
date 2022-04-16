@@ -168,12 +168,12 @@ class SlaveMessageProcessor(LocaleMixin):
 
         # Type dispatching
         if msg.type == MsgType.Text:
-            tg_msg = self.slave_message_text(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
+            if msg.mime == "Markdown":
+                tg_msg = self.slave_message_markdown(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
                                              reply_markup, silent)
-        if msg.type == "Markdown":
-            tg_msg = self.slave_message_markdown(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
+            else :
+                tg_msg = self.slave_message_text(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
                                              reply_markup, silent)
-
         elif msg.type == MsgType.Link:
             tg_msg = self.slave_message_link(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
                                              reply_markup, silent)
