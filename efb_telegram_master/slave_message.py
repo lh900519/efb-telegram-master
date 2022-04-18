@@ -168,11 +168,7 @@ class SlaveMessageProcessor(LocaleMixin):
 
         # Type dispatching
         if msg.type == MsgType.Text:
-            if msg.mime == "Markdown":
-                tg_msg = self.slave_message_markdown(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
-                                             reply_markup, silent)
-            else :
-                tg_msg = self.slave_message_text(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
+            tg_msg = self.slave_message_text(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
                                              reply_markup, silent)
         elif msg.type == MsgType.Link:
             tg_msg = self.slave_message_link(msg, tg_dest, msg_template, reactions, old_msg_id, target_msg_id,
@@ -342,37 +338,6 @@ class SlaveMessageProcessor(LocaleMixin):
         self.logger.debug("[%s] Processed and sent as text message", msg.uid)
         return tg_msg
 
-    def slave_message_markdown(self, msg: Message, tg_dest: TelegramChatID, msg_template: str, reactions: str,
-                           old_msg_id: OldMsgID = None,
-                           target_msg_id: Optional[TelegramMessageID] = None,
-                           reply_markup: Optional[ReplyMarkup] = None,
-                           silent: bool = False) -> telegram.Message:
-
-        self.logger.debug("[%s] Sending as a markdown message.", msg.uid)
-        self.bot.send_chat_action(tg_dest, ChatAction.TYPING)
-
-        # text = self.html_substitutions(msg)
-        text = msg.text
-
-        if not old_msg_id:
-            tg_msg = self.bot.send_message(tg_dest,
-                                           text=text, prefix=msg_template, suffix=reactions,
-                                           parse_mode='MarkdownV2',
-                                           reply_to_message_id=target_msg_id,
-                                           reply_markup=reply_markup,
-                                           disable_notification=silent)
-        else:
-            # Cannot change reply_to_message_id when editing a message
-            tg_msg = self.bot.edit_message_text(chat_id=old_msg_id[0],
-                                                message_id=old_msg_id[1],
-                                                text=text, prefix=msg_template, suffix=reactions,
-                                                parse_mode='HTML',
-                                                reply_markup=reply_markup)
-
-        self.logger.debug(
-            "[%s] Processed and sent as markdown message", msg.uid)
-        return tg_msg
-
     def slave_message_link(self, msg: Message, tg_dest: TelegramChatID, msg_template: str, reactions: str,
                            old_msg_id: OldMsgID = None,
                            target_msg_id: Optional[TelegramMessageID] = None,
@@ -428,7 +393,8 @@ class SlaveMessageProcessor(LocaleMixin):
             self.logger.debug("[%s] Size of %s is %s.", msg.uid, msg.path, os.stat(msg.path).st_size)
 
         if msg.text:
-            text = self.html_substitutions(msg)
+            text = msg.text
+            # text = self.html_substitutions(msg)
         elif msg_template:
             placeholder_flag = self.flag("default_media_prompt")
             if placeholder_flag == "emoji":
