@@ -291,7 +291,8 @@ class SlaveMessageProcessor(LocaleMixin):
             t += html.escape(text[prev:])
             return t
         elif text:
-            return html.escape(text)
+            # return html.escape(text)
+            return text
         return text
 
     def slave_message_text(self, msg: Message, tg_dest: TelegramChatID, msg_template: str, reactions: str,
@@ -393,8 +394,8 @@ class SlaveMessageProcessor(LocaleMixin):
             self.logger.debug("[%s] Size of %s is %s.", msg.uid, msg.path, os.stat(msg.path).st_size)
 
         if msg.text:
-            text = msg.text
-            # text = self.html_substitutions(msg)
+            # text = msg.text
+            text = self.html_substitutions(msg)
         elif msg_template:
             placeholder_flag = self.flag("default_media_prompt")
             if placeholder_flag == "emoji":
